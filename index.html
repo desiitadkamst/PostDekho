@@ -11,6 +11,7 @@
   body { padding-bottom: 32px; }
   .header { position: sticky; top: 0; z-index: 10; background: #0b0b10; padding: 14px 16px 10px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1f1f2a; }
   .header h1 { font-size: 22px; font-weight: 800; color: #7c5cff; white-space: nowrap; }
+  .total { background: #7c5cff; color: #fff; font-size: 13px; font-weight: 800; padding: 5px 11px; border-radius: 20px; white-space: nowrap; }
   .search { flex: 1; display: flex; align-items: center; gap: 8px; background: #17171f; border: 1px solid #2a2a38; border-radius: 12px; padding: 9px 12px; }
   .search input { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 15px; min-width: 0; }
   .search input::placeholder { color: #8a8a9a; }
@@ -50,6 +51,7 @@
 <body>
   <div class="header">
     <h1>🔥 Viral Posts</h1>
+    <span class="total" id="totalCount"></span>
     <label class="search"><span>🔍</span><input id="q" type="search" placeholder="Search posts..." autocomplete="off"></label>
   </div>
 
@@ -132,11 +134,16 @@
         '<button class="watch-btn" data-open="' + esc(p.id) + '">👀 Watch This Post Now</button>' +
       '</div></article>';
   }
+  function updateTotal() {
+    const el = document.getElementById("totalCount");
+    if (el) el.textContent = POSTS.length + (POSTS.length === 1 ? " post" : " posts");
+  }
   function render(filter) {
     const q = (filter || "").trim().toLowerCase();
     const list = POSTS.filter(p => !q || ((p.title || "") + " " + (p.description || "")).toLowerCase().includes(q));
     const feed = document.getElementById("feed");
     const empty = document.getElementById("empty");
+    updateTotal();
     feed.innerHTML = "";
     if (!list.length) {
       empty.style.display = "block";
