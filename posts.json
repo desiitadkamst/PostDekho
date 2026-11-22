@@ -13,8 +13,7 @@
         "url": "https://www.diskwala.com/app/6b032137114cd4ed40bb000f"
       }
     ],
-    "_file_id": "BAACAgUAAxkBAAMLawMhQ8MQEQR5oAQ4ixHzeMSUVdwAAroNAAJQkkhWTbjwtXcSM8E9BA",
-    "_local_media": "/home/hatch/workspace/postdekho/media/post1.mp4"
+    "num": 1
   },
   {
     "id": "post2",
@@ -30,8 +29,7 @@
         "url": "https://www.diskwala.com/app/6b032528114cd4ed40bb1e8a"
       }
     ],
-    "_file_id": "BAACAgUAAxkBAAMZawMlM9mccfyqpUFVAwABPmVxz9kwAAIFDwACC1FhVM6KLuDeB5XOPQQ",
-    "_local_media": "/home/hatch/workspace/postdekho/media/post2.mp4"
+    "num": 2
   },
   {
     "id": "post3",
@@ -47,8 +45,7 @@
         "url": "https://www.diskwala.com/app/6b0329be114cd4ed40bb3d7a"
       }
     ],
-    "_file_id": "BAACAgUAAxkBAAMpawMp2iwND92aGGiLk6LlhzZ2w0YAAqodAAIIqtBXvGaZgTShvz49BA",
-    "_local_media": "/home/hatch/workspace/postdekho/media/post3.mp4"
+    "num": 3
   },
   {
     "id": "post4",
@@ -64,8 +61,7 @@
         "url": "https://www.diskwala.com/app/6b032a2f114cd4ed40bb3ff8"
       }
     ],
-    "_file_id": "BAACAgUAAxkBAAMrawMqQsJ6u4xCjQxFxnBRiA9vVw0AAq4PAAKs_nFXRMw3jqyC2r49BA",
-    "_local_media": "/home/hatch/workspace/postdekho/media/post4.mp4"
+    "num": 4
   },
   {
     "id": "post5",
@@ -81,7 +77,6 @@
         "url": "https://www.diskwala.com/app/6b032ab6114cd4ed40bb4161"
       }
     ],
-    "_file_id": "BAACAgUAAxkBAAMtawMqyC4R-_ivgXWnXVUbSqwSLs0AArUgAAJ7VvFWWhzVmoX5cGs9BA",
-    "_local_media": "/home/hatch/workspace/postdekho/media/post5.mp4"
+    "num": 5
   }
 ]
