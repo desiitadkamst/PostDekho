@@ -114,7 +114,7 @@
         else { v.pause(); }
       });
     }, { threshold: [0, 0.4, 1] });
-    document.querySelectorAll("#feed video").forEach(v => io.observe(v));
+    document.querySelectorAll("#feed video, .more-grid video").forEach(v => io.observe(v));
   }
   function cardHtml(p) {
     return '<article class="card" data-id="' + esc(p.id) + '">' +
@@ -147,7 +147,7 @@
     if (list.length > 1) {
       moreTitle.style.display = "block";
       moreGrid.innerHTML = list.slice(1).map(p =>
-        '<div class="thumb" data-open="' + esc(p.id) + '">' + mediaTag(p, false, false) +
+        '<div class="thumb" data-open="' + esc(p.id) + '">' + mediaTag(p, false, true) +
         '<div class="t">' + esc(p.title || "NEW VIRAL VIDEO") + '</div></div>'
       ).join("");
     } else {
