@@ -140,7 +140,11 @@
   }
   function render(filter) {
     const q = (filter || "").trim().toLowerCase();
-    const list = POSTS.filter(p => !q || ((p.title || "") + " " + (p.description || "")).toLowerCase().includes(q));
+    const list = POSTS.filter(p => {
+      if (!q) return true;
+      const hay = ((p.title || "") + " " + (p.description || "") + " post " + (p.num ?? "") + " " + (p.id || "")).toLowerCase();
+      return hay.includes(q);
+    });
     const feed = document.getElementById("feed");
     const empty = document.getElementById("empty");
     updateTotal();
