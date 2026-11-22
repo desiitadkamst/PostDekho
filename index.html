@@ -53,8 +53,6 @@
   </div>
 
   <div class="feed" id="feed"></div>
-  <div class="more" id="moreTitle" style="display:none">More posts 👇</div>
-  <div class="more-grid" id="moreGrid"></div>
   <div class="empty" id="empty" style="display:none">No posts yet.<br>New viral posts will appear here soon. 🔥</div>
 
   <div class="modal" id="player">
@@ -88,7 +86,7 @@
         return '<video src="' + esc(p.media_url) + '" controls autoplay playsinline></video>';
       }
       if (autoplay) {
-        return '<video src="' + esc(p.media_url) + '" autoplay muted loop playsinline preload="metadata"></video>';
+        return '<video src="' + esc(p.media_url) + '" autoplay muted loop playsinline preload="auto"></video>';
       }
       return '<video src="' + esc(p.media_url) + '" preload="metadata" playsinline muted></video>' +
         '<div class="play-badge"><span>▶</span></div>';
@@ -114,7 +112,7 @@
         else { v.pause(); }
       });
     }, { threshold: [0, 0.4, 1] });
-    document.querySelectorAll("#feed video, .more-grid video").forEach(v => io.observe(v));
+    document.querySelectorAll("#feed video").forEach(v => io.observe(v));
   }
   function cardHtml(p) {
     return '<article class="card" data-id="' + esc(p.id) + '">' +
@@ -131,28 +129,15 @@
     const q = (filter || "").trim().toLowerCase();
     const list = POSTS.filter(p => !q || ((p.title || "") + " " + (p.description || "")).toLowerCase().includes(q));
     const feed = document.getElementById("feed");
-    const moreGrid = document.getElementById("moreGrid");
-    const moreTitle = document.getElementById("moreTitle");
     const empty = document.getElementById("empty");
     feed.innerHTML = "";
-    moreGrid.innerHTML = "";
     if (!list.length) {
       empty.style.display = "block";
-      moreTitle.style.display = "none";
       return;
     }
     empty.style.display = "none";
-    feed.innerHTML = cardHtml(list[0]);
+    feed.innerHTML = list.map(p => cardHtml(p)).join("");
     setupAutoplay();
-    if (list.length > 1) {
-      moreTitle.style.display = "block";
-      moreGrid.innerHTML = list.slice(1).map(p =>
-        '<div class="thumb" data-open="' + esc(p.id) + '">' + mediaTag(p, false, true) +
-        '<div class="t">' + esc(p.title || "NEW VIRAL VIDEO") + '</div></div>'
-      ).join("");
-    } else {
-      moreTitle.style.display = "none";
-    }
   }
   function openPost(id) {
     const p = POSTS.find(x => String(x.id) === String(id));
