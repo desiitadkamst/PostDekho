@@ -23,6 +23,7 @@
   .dur { position: absolute; right: 10px; bottom: 10px; background: rgba(0,0,0,.75); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 8px; pointer-events: none; }
   .body { padding: 14px 14px 16px; }
   .title { font-size: 19px; font-weight: 800; letter-spacing: .2px; }
+  .pnum { font-size: 13px; font-weight: 800; color: #7c9cff; margin-bottom: 4px; letter-spacing: .4px; }
   .meta { color: #9a9aad; font-size: 13px; margin: 7px 0 10px; }
   .desc { color: #d7d7e2; font-size: 15px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
   .links-label { margin-top: 14px; font-size: 15px; font-weight: 700; color: #fff; }
@@ -80,6 +81,11 @@
     if (isNaN(dt)) return String(d);
     return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
   }
+  function postNum(p) {
+    if (p.num != null && p.num !== "") return p.num;
+    const m = String(p.id || "").match(/(\d+)\s*$/);
+    return m ? m[1] : "";
+  }
   function mediaTag(p, forModal, autoplay) {
     if (p.media_type === "video") {
       if (forModal) {
@@ -118,6 +124,7 @@
     return '<article class="card" data-id="' + esc(p.id) + '">' +
       '<div class="media" data-open="' + esc(p.id) + '">' + mediaTag(p, false, true) + '</div>' +
       '<div class="body">' +
+        '<div class="pnum">Post ' + esc(postNum(p)) + '</div>' +
         '<div class="title">' + esc(p.title || "NEW VIRAL VIDEO") + '</div>' +
         '<div class="meta">👁 ' + fmtViews(p.views) + ' views · ' + fmtDate(p.date) + '</div>' +
         (p.description ? '<div class="desc">' + esc(p.description) + '</div>' : '') +
@@ -144,6 +151,7 @@
     if (!p) return;
     document.getElementById("playerMedia").innerHTML = mediaTag(p, true);
     document.getElementById("playerBody").innerHTML =
+      '<div class="pnum">Post ' + esc(postNum(p)) + '</div>' +
       '<div class="title">' + esc(p.title || "NEW VIRAL VIDEO") + '</div>' +
       '<div class="meta">👁 ' + fmtViews(p.views) + ' views · ' + fmtDate(p.date) + '</div>' +
       (p.description ? '<div class="desc">' + esc(p.description) + '</div>' : '') +
