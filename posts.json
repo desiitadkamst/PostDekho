@@ -24,7 +24,12 @@
     "media_url": "https://desiitadkamst.github.io/PostDekho/media/post2.mp4",
     "views": 0,
     "date": "2026-11-22",
-    "links": [],
+    "links": [
+      {
+        "label": "Link",
+        "url": "https://www.diskwala.com/app/6b032528114cd4ed40bb1e8a"
+      }
+    ],
     "_file_id": "BAACAgUAAxkBAAMZawMlM9mccfyqpUFVAwABPmVxz9kwAAIFDwACC1FhVM6KLuDeB5XOPQQ",
     "_local_media": "/home/hatch/workspace/postdekho/media/post2.mp4"
   }
