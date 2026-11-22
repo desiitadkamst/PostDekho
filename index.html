@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Post Dekho — Viral Posts</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #0b0b10; color: #fff; font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  body { padding-bottom: 32px; }
+  .header { position: sticky; top: 0; z-index: 10; background: #0b0b10; padding: 14px 16px 10px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1f1f2a; }
+  .header h1 { font-size: 22px; font-weight: 800; color: #7c5cff; white-space: nowrap; }
+  .search { flex: 1; display: flex; align-items: center; gap: 8px; background: #17171f; border: 1px solid #2a2a38; border-radius: 12px; padding: 9px 12px; }
+  .search input { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 15px; min-width: 0; }
+  .search input::placeholder { color: #8a8a9a; }
+  .feed { padding: 12px 12px 0; display: flex; flex-direction: column; gap: 18px; }
+  .card { background: #17171f; border: 1px solid #262633; border-radius: 18px; overflow: hidden; }
+  .media { position: relative; width: 100%; background: #000; cursor: pointer; }
+  .media video, .media img { display: block; width: 100%; max-height: 420px; object-fit: contain; background: #000; }
+  .play-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .play-badge span { color: #111; font-size: 26px; margin-left: 4px; }
+  .dur { position: absolute; right: 10px; bottom: 10px; background: rgba(0,0,0,.75); color: #fff; font-size: 12px; padding: 3px 8px; border-radius: 8px; pointer-events: none; }
+  .body { padding: 14px 14px 16px; }
+  .title { font-size: 19px; font-weight: 800; letter-spacing: .2px; }
+  .meta { color: #9a9aad; font-size: 13px; margin: 7px 0 10px; }
+  .desc { color: #d7d7e2; font-size: 15px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+  .links-label { margin-top: 14px; font-size: 15px; font-weight: 700; color: #fff; }
+  .link-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; background: #101018; border: 1px solid #2a2a38; border-radius: 12px; padding: 13px 14px; color: #fff; text-decoration: none; font-size: 15px; }
+  .link-row .arrow { color: #7c9cff; font-size: 18px; }
+  .watch-btn { display: block; width: 100%; margin-top: 14px; border: none; cursor: pointer; text-align: center; text-decoration: none; font-size: 17px; font-weight: 800; color: #fff; padding: 15px 0; border-radius: 14px; background: linear-gradient(90deg, #7c5cff, #2f9bff); }
+  .more { padding: 20px 16px 0; font-size: 19px; font-weight: 800; }
+  .more-grid { padding: 12px 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .thumb { position: relative; border-radius: 14px; overflow: hidden; background: #17171f; border: 1px solid #262633; cursor: pointer; }
+  .thumb video, .thumb img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .thumb .play-badge { width: 44px; height: 44px; }
+  .thumb .play-badge span { font-size: 18px; }
+  .thumb .t { padding: 8px 10px; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .empty { text-align: center; color: #9a9aad; padding: 48px 20px; font-size: 16px; line-height: 1.6; }
+  /* Player modal */
+  .modal { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.96); overflow-y: auto; }
+  .modal.open { display: block; }
+  .modal .close { position: sticky; top: 0; z-index: 2; display: flex; justify-content: flex-end; padding: 12px 14px; }
+  .modal .close button { background: rgba(255,255,255,.14); color: #fff; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+  .modal video, .modal img { display: block; width: 100%; max-height: 62vh; object-fit: contain; background: #000; }
+  .modal .body { padding: 14px 16px 28px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔥 Viral Posts</h1>
+    <label class="search"><span>🔍</span><input id="q" type="search" placeholder="Search posts..." autocomplete="off"></label>
+  </div>
+
+  <div class="feed" id="feed"></div>
+  <div class="more" id="moreTitle" style="display:none">More posts 👇</div>
+  <div class="more-grid" id="moreGrid"></div>
+  <div class="empty" id="empty" style="display:none">No posts yet.<br>New viral posts will appear here soon. 🔥</div>
+
+  <div class="modal" id="player">
+    <div class="close"><button id="closeBtn" aria-label="Close">✕</button></div>
+    <div id="playerMedia"></div>
+    <div class="body" id="playerBody"></div>
+  </div>
+
+<script>
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  if (tg) { try { tg.ready(); tg.expand(); } catch (e) {} }
+
+  let POSTS = [];
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function fmtViews(n) {
+    n = Number(n) || 0;
+    return n.toLocaleString("en-US");
+  }
+  function fmtDate(d) {
+    if (!d) return "";
+    const dt = new Date(d);
+    if (isNaN(dt)) return String(d);
+    return (dt.getMonth() + 1) + "/" + dt.getDate() + "/" + dt.getFullYear();
+  }
+  function mediaTag(p, forModal) {
+    if (p.media_type === "video") {
+      return '<video src="' + esc(p.media_url) + '" ' + (forModal ? 'controls autoplay playsinline' : 'preload="metadata" playsinline muted') + '></video>' +
+        (forModal ? '' : '<div class="play-badge"><span>▶</span></div>');
+    }
+    return '<img src="' + esc(p.media_url) + '" alt="">';
+  }
+  function linksHtml(p) {
+    const links = Array.isArray(p.links) ? p.links : [];
+    if (!links.length) return "";
+    let h = '<div class="links-label">🔗 Watch Online / Download 👇</div>';
+    links.forEach((l, i) => {
+      h += '<a class="link-row" href="' + esc(l.url) + '" target="_blank" rel="noopener"><span>' + (i + 1) + '. ' + esc(l.label || ("Link " + (i + 1))) + '</span><span class="arrow">→</span></a>';
+    });
+    return h;
+  }
+  function cardHtml(p) {
+    return '<article class="card" data-id="' + esc(p.id) + '">' +
+      '<div class="media" data-open="' + esc(p.id) + '">' + mediaTag(p, false) + '</div>' +
+      '<div class="body">' +
+        '<div class="title">' + esc(p.title || "NEW VIRAL VIDEO") + '</div>' +
+        '<div class="meta">👁 ' + fmtViews(p.views) + ' views · ' + fmtDate(p.date) + '</div>' +
+        (p.description ? '<div class="desc">' + esc(p.description) + '</div>' : '') +
+        linksHtml(p) +
+        '<button class="watch-btn" data-open="' + esc(p.id) + '">👀 Watch This Post Now</button>' +
+      '</div></article>';
+  }
+  function render(filter) {
+    const q = (filter || "").trim().toLowerCase();
+    const list = POSTS.filter(p => !q || ((p.title || "") + " " + (p.description || "")).toLowerCase().includes(q));
+    const feed = document.getElementById("feed");
+    const moreGrid = document.getElementById("moreGrid");
+    const moreTitle = document.getElementById("moreTitle");
+    const empty = document.getElementById("empty");
+    feed.innerHTML = "";
+    moreGrid.innerHTML = "";
+    if (!list.length) {
+      empty.style.display = "block";
+      moreTitle.style.display = "none";
+      return;
+    }
+    empty.style.display = "none";
+    feed.innerHTML = cardHtml(list[0]);
+    if (list.length > 1) {
+      moreTitle.style.display = "block";
+      moreGrid.innerHTML = list.slice(1).map(p =>
+        '<div class="thumb" data-open="' + esc(p.id) + '">' + mediaTag(p, false) +
+        '<div class="t">' + esc(p.title || "NEW VIRAL VIDEO") + '</div></div>'
+      ).join("");
+    } else {
+      moreTitle.style.display = "none";
+    }
+  }
+  function openPost(id) {
+    const p = POSTS.find(x => String(x.id) === String(id));
+    if (!p) return;
+    document.getElementById("playerMedia").innerHTML = mediaTag(p, true);
+    document.getElementById("playerBody").innerHTML =
+      '<div class="title">' + esc(p.title || "NEW VIRAL VIDEO") + '</div>' +
+      '<div class="meta">👁 ' + fmtViews(p.views) + ' views · ' + fmtDate(p.date) + '</div>' +
+      (p.description ? '<div class="desc">' + esc(p.description) + '</div>' : '') +
+      linksHtml(p) +
+      '<a class="watch-btn" href="' + esc((p.links && p.links[0] && p.links[0].url) || p.media_url) + '" target="_blank" rel="noopener">👀 Watch This Post Now</a>';
+    document.getElementById("player").classList.add("open");
+    document.body.style.overflow = "hidden";
+    try { if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light"); } catch (e) {}
+  }
+  function closePlayer() {
+    const m = document.getElementById("player");
+    m.classList.remove("open");
+    document.getElementById("playerMedia").innerHTML = "";
+    document.body.style.overflow = "";
+  }
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-open]");
+    if (t) { openPost(t.getAttribute("data-open")); return; }
+  });
+  document.getElementById("closeBtn").addEventListener("click", closePlayer);
+  document.getElementById("player").addEventListener("click", e => {
+    if (e.target.id === "player") closePlayer();
+  });
+  document.getElementById("q").addEventListener("input", e => render(e.target.value));
+
+  fetch("posts.json", { cache: "no-store" })
+    .then(r => r.json())
+    .then(data => {
+      POSTS = Array.isArray(data) ? data : (data.posts || []);
+      // Newest first.
+      POSTS.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+      render("");
+    })
+    .catch(() => {
+      POSTS = [];
+      render("");
+    });
+</script>
+</body>
+</html>
