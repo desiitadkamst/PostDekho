@@ -16,7 +16,7 @@
   .search input { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 15px; min-width: 0; }
   .search input::placeholder { color: #8a8a9a; }
   .feed { padding: 12px 12px 0; display: flex; flex-direction: column; gap: 18px; }
-  .card { background: #17171f; border: 1px solid #262633; border-radius: 18px; overflow: hidden; }
+  .card { background: #17171f; border: 1px solid #262633; border-radius: 18px; overflow: hidden; content-visibility: auto; contain-intrinsic-size: 520px; }
   .media { position: relative; width: 100%; background: #000; cursor: pointer; }
   .media video, .media img { display: block; width: 100%; max-height: 240px; object-fit: contain; background: #000; }
   .play-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center; pointer-events: none; }
@@ -56,6 +56,7 @@
   </div>
 
   <div class="feed" id="feed"></div>
+  <div class="empty" id="loading" style="display:block">Loading posts... 🔥</div>
   <div class="empty" id="empty" style="display:none">No posts yet.<br>New viral posts will appear here soon. 🔥</div>
 
   <div class="modal" id="player">
@@ -111,6 +112,11 @@
     return h;
   }
   let io = null;
+  function pauseOthers(current) {
+    document.querySelectorAll("#feed video").forEach(v => {
+      if (v !== current && !v.paused) v.pause();
+    });
+  }
   function setupAutoplay() {
     if (io) io.disconnect();
     io = new IntersectionObserver(entries => {
@@ -122,7 +128,7 @@
             v.setAttribute("src", v.dataset.src);
             v.load();
           }
-          if (en.intersectionRatio >= 0.4) { v.play().catch(function(){}); }
+          if (en.intersectionRatio >= 0.4) { pauseOthers(v); v.play().catch(function(){}); }
           else { v.pause(); }
         } else { v.pause(); }
       });
@@ -198,12 +204,14 @@
   fetch("posts.json", { cache: "no-store" })
     .then(r => r.json())
     .then(data => {
+      document.getElementById("loading").style.display = "none";
       POSTS = Array.isArray(data) ? data : (data.posts || []);
       // Newest first.
       POSTS.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
       render("");
     })
     .catch(() => {
+      document.getElementById("loading").style.display = "none";
       POSTS = [];
       render("");
     });
