@@ -16,7 +16,7 @@
   .search input { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 15px; min-width: 0; }
   .search input::placeholder { color: #8a8a9a; }
   .feed { padding: 12px 12px 0; display: flex; flex-direction: column; gap: 18px; }
-  .card { background: #17171f; border: 1px solid #262633; border-radius: 18px; overflow: hidden; content-visibility: auto; contain-intrinsic-size: 520px; }
+  .card { background: #17171f; border: 1px solid #262633; border-radius: 18px; overflow: hidden; }
   .media { position: relative; width: 100%; background: #000; cursor: pointer; }
   .media video, .media img { display: block; width: 100%; max-height: 240px; object-fit: contain; background: #000; }
   .play-badge { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center; pointer-events: none; }
@@ -95,7 +95,7 @@
         return '<video src="' + esc(p.media_url) + '" controls autoplay playsinline></video>';
       }
       if (autoplay) {
-        return '<video data-src="' + esc(p.media_url) + '" preload="none" muted loop playsinline></video>';
+        return '<video data-src="' + esc(p.media_url) + '" autoplay preload="none" muted loop playsinline></video>';
       }
       return '<video src="' + esc(p.media_url) + '" preload="metadata" playsinline muted></video>' +
         '<div class="play-badge"><span>▶</span></div>';
@@ -112,11 +112,6 @@
     return h;
   }
   let io = null;
-  function pauseOthers(current) {
-    document.querySelectorAll("#feed video").forEach(v => {
-      if (v !== current && !v.paused) v.pause();
-    });
-  }
   function setupAutoplay() {
     if (io) io.disconnect();
     io = new IntersectionObserver(entries => {
@@ -128,7 +123,8 @@
             v.setAttribute("src", v.dataset.src);
             v.load();
           }
-          if (en.intersectionRatio >= 0.4) { pauseOthers(v); v.play().catch(function(){}); }
+          // 2-4 videos can play together: no pauseOthers here.
+          if (en.intersectionRatio >= 0.4) { v.play().catch(function(){}); }
           else { v.pause(); }
         } else { v.pause(); }
       });
