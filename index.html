@@ -94,12 +94,12 @@
         return '<video src="' + esc(p.media_url) + '" controls autoplay playsinline></video>';
       }
       if (autoplay) {
-        return '<video src="' + esc(p.media_url) + '" autoplay muted loop playsinline preload="auto"></video>';
+        return '<video data-src="' + esc(p.media_url) + '" preload="none" muted loop playsinline></video>';
       }
       return '<video src="' + esc(p.media_url) + '" preload="metadata" playsinline muted></video>' +
         '<div class="play-badge"><span>▶</span></div>';
     }
-    return '<img src="' + esc(p.media_url) + '" alt="">';
+    return '<img src="' + esc(p.media_url) + '" alt="" loading="lazy">';
   }
   function linksHtml(p) {
     const links = Array.isArray(p.links) ? p.links : [];
@@ -116,10 +116,17 @@
     io = new IntersectionObserver(entries => {
       entries.forEach(en => {
         const v = en.target;
-        if (en.isIntersecting && en.intersectionRatio >= 0.4) { v.play().catch(function(){}); }
-        else { v.pause(); }
+        if (en.isIntersecting) {
+          // Lazy-load: start downloading only when the card is near the screen.
+          if (!v.getAttribute("src") && v.dataset.src) {
+            v.setAttribute("src", v.dataset.src);
+            v.load();
+          }
+          if (en.intersectionRatio >= 0.4) { v.play().catch(function(){}); }
+          else { v.pause(); }
+        } else { v.pause(); }
       });
-    }, { threshold: [0, 0.4, 1] });
+    }, { threshold: [0, 0.4, 1], rootMargin: "600px 0px" });
     document.querySelectorAll("#feed video").forEach(v => io.observe(v));
   }
   function cardHtml(p) {
