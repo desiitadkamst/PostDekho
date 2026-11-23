@@ -52,6 +52,7 @@
   <div class="header">
     <h1>🔥 Viral Posts</h1>
     <span class="total" id="totalCount"></span>
+    <span class="total" id="userCount"></span>
     <label class="search"><span>🔍</span><input id="q" type="search" placeholder="Search posts..." autocomplete="off"></label>
   </div>
 
@@ -196,6 +197,16 @@
     if (e.target.id === "player") closePlayer();
   });
   document.getElementById("q").addEventListener("input", e => render(e.target.value));
+
+  fetch("stats.json", { cache: "no-store" })
+    .then(r => r.json())
+    .then(s => {
+      const el = document.getElementById("userCount");
+      if (el && typeof s.users === "number") {
+        el.textContent = "👥 " + s.users + (s.users === 1 ? " user" : " users");
+      }
+    })
+    .catch(() => {});
 
   fetch("posts.json", { cache: "no-store" })
     .then(r => r.json())
