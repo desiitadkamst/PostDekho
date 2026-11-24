@@ -202,8 +202,9 @@
     .then(data => {
       document.getElementById("loading").style.display = "none";
       POSTS = Array.isArray(data) ? data : (data.posts || []);
-      // Newest first.
-      POSTS.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+      // Newest first: by date, then by post number (same-day posts
+      // share one date, so number decides — newest post on top).
+      POSTS.sort((a, b) => (new Date(b.date || 0) - new Date(a.date || 0)) || ((b.num || 0) - (a.num || 0)));
       render("");
     })
     .catch(() => {
