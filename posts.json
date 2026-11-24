@@ -234,6 +234,24 @@
     "_local_media": "/home/hatch/workspace/postdekho/media/post60.jpg"
   },
   {
+    "id": "post61",
+    "num": 61,
+    "title": "NEW VIRAL VIDEO 📸",
+    "description": "",
+    "media_type": "video",
+    "media_url": "https://desiitadkamst.github.io/PostDekho/media/post61.mp4",
+    "views": 485,
+    "date": "2026-11-24",
+    "links": [
+      {
+        "label": "Link",
+        "url": "https://www.diskwala.com/app/6b054307af79cebf9650d9f8"
+      }
+    ],
+    "_file_id": "BAACAgUAAxkBAAIBJmsFQ72MqVf9oPXZq981T63UqhN8AAJ_CgAC4lgoV3URnBJ_QsMUPQQ",
+    "_local_media": "/home/hatch/workspace/postdekho/media/post61.mp4"
+  },
+  {
     "id": "post13",
     "num": 13,
     "title": "NEW VIRAL VIDEO 📸",
