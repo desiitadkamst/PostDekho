@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostDekho Status</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #0f0f12; color: #f2f2f2; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .card { width: 100%; max-width: 420px; background: #1b1b20; border: 1px solid #2c2c33; border-radius: 16px; padding: 28px 24px; text-align: center; }
+  h1 { margin: 0 0 4px; font-size: 22px; }
+  .sub { color: #9a9aa5; font-size: 14px; margin: 0 0 24px; }
+  .dot { width: 18px; height: 18px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: -2px; }
+  .dot.green { background: #22c55e; box-shadow: 0 0 12px #22c55e; }
+  .dot.red { background: #ef4444; box-shadow: 0 0 12px #ef4444; }
+  .dot.grey { background: #6b7280; }
+  .status { font-size: 26px; font-weight: 700; margin-bottom: 20px; }
+  .row { display: flex; justify-content: space-between; background: #26262c; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; font-size: 16px; }
+  .row b { font-size: 18px; }
+  .row span { color: #9a9aa5; }
+  .note { color: #9a9aa5; font-size: 13px; margin: 16px 0 20px; line-height: 1.5; }
+  a.btn { display: block; background: #7c3aed; color: #fff; text-decoration: none; font-weight: 600; padding: 13px; border-radius: 10px; margin-bottom: 10px; }
+  a.btn.ghost { background: transparent; border: 1px solid #3f3f46; }
+  .refresh { color: #6b7280; font-size: 12px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>📺 PostDekho Status</h1>
+  <p class="sub">Mini App ka status — bina msg kiye check karo</p>
+  <div class="status"><span id="dot" class="dot grey"></span><span id="statusText">Checking…</span></div>
+  <div class="row"><span>Posts</span><b id="posts">–</b></div>
+  <div class="row"><span>Last update</span><b id="updated">–</b></div>
+  <p class="note" id="note">Bot har 5 minute me apna status bhejta hai. Agar 10 minute se zyada purana dikhe to bot band hai.</p>
+  <a class="btn" href="https://desiitadkamst.github.io/PostDekho/">🚀 Open Mini App</a>
+  <a class="btn ghost" href="https://t.me/+yHJXCrLHNo04ZTc1">🔔 Backup Channel</a>
+  <div class="refresh" id="refresh">Auto-refresh: har 60 second</div>
+</div>
+<script>
+async function check() {
+  const dot = document.getElementById('dot');
+  const statusText = document.getElementById('statusText');
+  const postsEl = document.getElementById('posts');
+  const updatedEl = document.getElementById('updated');
+  const note = document.getElementById('note');
+  try {
+    const r = await fetch('status.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('no status');
+    const s = await r.json();
+    const t = new Date(s.updated_at);
+    const ageMin = (Date.now() - t.getTime()) / 60000;
+    const timeStr = t.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    postsEl.textContent = s.posts;
+    updatedEl.textContent = timeStr + ' IST';
+    if (s.status === 'online' && ageMin <= 10) {
+      dot.className = 'dot green';
+      statusText.textContent = 'Bot Online';
+      note.textContent = 'Bot chal raha hai. Naye post Mini App me aa jayenge.';
+    } else {
+      dot.className = 'dot red';
+      statusText.textContent = 'Bot Offline';
+      note.textContent = 'Bot ' + Math.round(ageMin) + ' minute se status nahi bhej raha — band ho sakta hai ya system restart hua hai. Thodi der me khud wapas aa jayega.';
+    }
+  } catch (e) {
+    dot.className = 'dot red';
+    statusText.textContent = 'Bot Offline';
+    postsEl.textContent = '–';
+    updatedEl.textContent = '–';
+    note.textContent = 'Status abhi mil nahi raha — page refresh karo ya thodi der baad phir check karo.';
+  }
+  document.getElementById('refresh').textContent = 'Last checked: ' + new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST · Auto-refresh: har 60 second';
+}
+check();
+setInterval(check, 60000);
+</script>
+</body>
+</html>
